@@ -86,6 +86,8 @@ public class MainActivity extends AppCompatActivity {
                 // Wait until http request is returned
 
                 // Switch to other activity.
+                Intent intent = new Intent(MainActivity.this, BoardDisplay.class);
+                startActivity(intent);
             }
         });
     }

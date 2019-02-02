@@ -31,7 +31,15 @@ public class MainActivity extends AppCompatActivity {
     boolean ignoreNextResume = false;
     Button  pickerButton = null;
     TextView errorView;
+
     File holderFile = null;
+
+    // Two connections occur. Json and file upload.
+    // 0 means other process didn't finish yet.
+    // 1 means other process was a success
+    // -1 means other process failed
+    // Connection status variable is used to show connection error to user.
+    int connectionStatus = 0;
 
     public Activity getInstance() {
         return this;
@@ -40,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
 
         // Lock screen orientation
@@ -65,8 +74,6 @@ public class MainActivity extends AppCompatActivity {
                     errorView.setVisibility(View.VISIBLE);
                     return; // file hasn't been selected yet
                 }
-                Log.d("SUBMIT", holderFile.getAbsolutePath() +
-                        " exists? " + holderFile.exists());
 
                 // CHECK IF OTHER VALUES AREN'T BLANK
                 Double voltage = getValue((EditText)findViewById(R.id.voltageInput));
@@ -79,26 +86,77 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
 
+                connectionStatus = 0; //reset status.
+
+                FileUtils.ConnectionCallBack ccb = new FileUtils.ConnectionCallBack() {
+                    String errorMessage = "An error has occurred when connecting to the server!\n" +
+                            "Try again later.";
+                    private void showError() {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                // Purposeful error text change.
+                                if (errorView.getText().toString().contains(errorMessage)) {
+                                    errorView.setText(errorView.getText().toString() + ".");
+                                } else {
+                                    errorView.setText(errorMessage);
+                                    errorView.setVisibility(View.VISIBLE);
+                                }
+                            }
+                        });
+                    }
+                    @Override
+                    public void success(boolean b) {
+                        if (connectionStatus==-1) {
+                            return; // Other process failed and printed error message
+                        }
+                        if (connectionStatus==1) {
+                            // Other process succeeded
+                            if (b) {
+                                // both succeeded
+                                switchToBoard();
+                            } else {
+                                // Other succeeded but this one failed
+                                showError();
+
+                            }
+                        }
+                        if (connectionStatus==0) {
+                            // Other process hasn't finished yet
+                            if (b) {
+                                connectionStatus = 1;
+                            } else {
+                                connectionStatus = -1;
+                                showError();
+                            }
+                        }
+
+                    }
+                };
+
                 JSONObject obj = new JSONObject();
                 try {
-                    obj.put("voltageInput", voltage);
+                    obj.put("voltage", voltage);
                     obj.put("current", current);
-                    obj.put("dist", dist);
-                    obj.put("width", width);
+                    obj.put("min_dist", dist);
+                    obj.put("min_width", width);
 
-                    FileUtils.sendJSONPost(obj);
+                    FileUtils.sendJSONPost(obj, ccb);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                FileUtils.sendFile(holderFile);
+                FileUtils.sendFile(holderFile, ccb);
 
-                // Wait until http request is returned
 
                 // Switch to other activity.
-                Intent intent = new Intent(MainActivity.this, BoardDisplay.class);
-                startActivity(intent);
+
             }
         });
+    }
+
+    private void switchToBoard() {
+        Intent intent = new Intent(MainActivity.this, BoardDisplay.class);
+        startActivity(intent);
     }
 
     private static Double getValue(EditText et) {

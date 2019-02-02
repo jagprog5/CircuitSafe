@@ -12,6 +12,7 @@ import java.io.BufferedInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -23,11 +24,16 @@ public class FileUtils {
     private static String twoHyphens = "--";
     private static String boundary =  "*****";
 
-    public static void sendFile(File f) {
+    interface ConnectionCallBack {
+        void success(boolean b);
+    }
+
+    public static void sendFile(File f, ConnectionCallBack connectioncb) {
         // THIS METHOD IS BASED OFF:
         // https://stackoverflow.com/a/11826317
 
         final File file = f;
+        final ConnectionCallBack ccb = connectioncb;
 
         Thread thread = new Thread(new Runnable() {
             @Override
@@ -39,7 +45,6 @@ public class FileUtils {
                                     .openConnection();
                     conn.setUseCaches(false);
                     conn.setDoOutput(true);
-
                     conn.setRequestMethod("POST");
                     conn.setRequestProperty("Connection", "Keep-Alive");
                     conn.setRequestProperty("Cache-Control", "no-cache");
@@ -62,9 +67,12 @@ public class FileUtils {
                     request.flush();
                     request.close();
 
-                    Log.i("STATUS", String.valueOf(conn.getResponseCode()));
-                    Log.i("MSG" , conn.getResponseMessage());
+                    Log.i("FILEMSG" , conn.getResponseMessage());
+                    // 200 code is success
+                    ccb.success(conn.getResponseCode() == 200);
+                    conn.disconnect();
                 } catch (Exception e) {
+                    ccb.success(false);
                     e.printStackTrace();
                 }
             }
@@ -77,7 +85,7 @@ public class FileUtils {
         byte[] bytes = new byte[(int)f.length()];
         try {
             BufferedInputStream buf = new BufferedInputStream(new FileInputStream(f));
-            buf.read(bytes, 0, bytes.length);
+            buf.read(bytes,0, bytes.length);
             buf.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -85,32 +93,30 @@ public class FileUtils {
         return bytes;
     }
 
-    public static void sendJSONPost(JSONObject json) {
+    public static void sendJSONPost(JSONObject json, ConnectionCallBack connectioncb) {
         final String jsonstr = json.toString();
+        final ConnectionCallBack ccb = connectioncb;
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    URL url = new URL("https://peterson-qhacks.herokuapp.com/compute");
+                    URL url = new URL("http://35.230.167.95/compute");
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                     conn.setRequestMethod("POST");
                     conn.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
                     conn.setRequestProperty("Accept","application/json");
                     conn.setDoOutput(true);
                     conn.setDoInput(true);
-
                     DataOutputStream os = new DataOutputStream(conn.getOutputStream());
-                    //os.writeBytes(URLEncoder.encode(jsonParam.toString(), "UTF-8"));
                     os.writeBytes(jsonstr);
-
                     os.flush();
                     os.close();
-
-                    Log.i("STATUS", String.valueOf(conn.getResponseCode()));
-                    Log.i("MSG" , conn.getResponseMessage());
-
+                    Log.i("JSONSENDMSG" , conn.getResponseMessage());
+                    // 200 code is success
+                    ccb.success(conn.getResponseCode() == 200);
                     conn.disconnect();
                 } catch (Exception e) {
+                    ccb.success(false);
                     e.printStackTrace();
                 }
             }

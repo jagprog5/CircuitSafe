@@ -31,8 +31,6 @@ public class MainActivity extends AppCompatActivity {
     boolean ignoreNextResume = false;
     Button  pickerButton = null;
     TextView errorView;
-    EditText voltageInput = null;
-    EditText minWidthInput = null;
     File holderFile = null;
 
     public Activity getInstance() {
@@ -46,24 +44,6 @@ public class MainActivity extends AppCompatActivity {
 
         // Lock screen orientation
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
-
-        voltageInput = (EditText)findViewById(R.id.voltageInput);
-        minWidthInput = (EditText)findViewById(R.id.minWidthInput);
-//        voltageInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-//            @Override
-//            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-//                getInstance().runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        Log.d("FOCUSS", "run: ");
-//                        minWidthInput.requestFocus();
-//                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-//                        imm.showSoftInput(minWidthInput, InputMethodManager.SHOW_IMPLICIT);
-//                    }
-//                });
-//                return false;
-//            }
-//        });
 
         pickerButton = (Button)findViewById(R.id.filePickerButton);
         pickerButton.setOnClickListener(new View.OnClickListener() {
@@ -89,10 +69,10 @@ public class MainActivity extends AppCompatActivity {
                         " exists? " + holderFile.exists());
 
                 // CHECK IF OTHER VALUES AREN'T BLANK
-                Double voltage = getValue(voltageInput);
+                Double voltage = getValue((EditText)findViewById(R.id.voltageInput));
                 Double current = getValue((EditText)findViewById(R.id.currentInput));
                 Double dist = getValue((EditText)findViewById(R.id.minDistInput));
-                Double width = getValue(minWidthInput);
+                Double width = getValue((EditText)findViewById(R.id.minWidthInput));
                 if (voltage <= 0 || current <= 0 || dist <= 0 || width <= 0) {
                     errorView.setText("Inputs must be positive non-zero values!");
                     errorView.setVisibility(View.VISIBLE);

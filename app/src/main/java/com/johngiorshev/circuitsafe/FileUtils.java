@@ -35,7 +35,7 @@ public class FileUtils {
                 try {
 
                     HttpURLConnection conn = (HttpURLConnection)
-                            new URL("https://peterson-qhacks.herokuapp.com/test")//upload")
+                            new URL("http://35.230.167.95/test")
                                     .openConnection();
                     conn.setUseCaches(false);
                     conn.setDoOutput(true);

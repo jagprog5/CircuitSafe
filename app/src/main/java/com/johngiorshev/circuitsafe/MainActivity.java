@@ -8,13 +8,19 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
+import org.json.JSONObject;
+
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
@@ -54,7 +60,27 @@ public class MainActivity extends AppCompatActivity {
                         " exists? " + holderFile.exists());
 
                 // CHECK IF OTHER VALUES AREN'T BLANK
+                Double voltage = getValue((EditText)findViewById(R.id.voltageInput));
+                Double current = getValue((EditText)findViewById(R.id.currentInput));
+                Double dist = getValue((EditText)findViewById(R.id.minDistInput));
+                Double width = getValue((EditText)findViewById(R.id.minWidthInput));
+                if (voltage <= 0 || current <= 0 || dist <= 0 || width <= 0) {
+                    errorView.setText("Inputs must be positive non-zero values!");
+                    errorView.setVisibility(View.VISIBLE);
+                    return;
+                }
 
+                JSONObject obj = new JSONObject();
+                try {
+                    obj.put("voltage", voltage);
+                    obj.put("current", current);
+                    obj.put("dist", dist);
+                    obj.put("width", width);
+
+                    sendJSONPost(obj);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
                 // IF EVERYTHING IS GOOD, PUT HTTP request with holderfile and editTextValues
 
@@ -63,6 +89,50 @@ public class MainActivity extends AppCompatActivity {
                 // Switch to other activity.
             }
         });
+    }
+
+    private static Double getValue(EditText et) {
+        String content = et.getText().toString();
+        try {
+            Double d = Double.parseDouble(content);
+            return d;
+        } catch (Exception e) {
+            return new Double(0);
+        }
+    }
+
+    public static void sendJSONPost(JSONObject json) {
+        final String jsonstr = json.toString();
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    URL url = new URL("https://peterson-qhacks.herokuapp.com/test");
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setRequestMethod("POST");
+                    conn.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
+                    conn.setRequestProperty("Accept","application/json");
+                    conn.setDoOutput(true);
+                    conn.setDoInput(true);
+
+                    DataOutputStream os = new DataOutputStream(conn.getOutputStream());
+                    //os.writeBytes(URLEncoder.encode(jsonParam.toString(), "UTF-8"));
+                    os.writeBytes(jsonstr);
+
+                    os.flush();
+                    os.close();
+
+                    Log.i("STATUS", String.valueOf(conn.getResponseCode()));
+                    Log.i("MSG" , conn.getResponseMessage());
+
+                    conn.disconnect();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        thread.start();
     }
 
     @Override
@@ -137,4 +207,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+
 }

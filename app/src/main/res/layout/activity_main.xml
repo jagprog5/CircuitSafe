@@ -12,29 +12,31 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
+        android:layout_marginTop="168dp"
         android:ems="10"
         android:hint="Min Distance (mm)"
         android:inputType="numberDecimal"
         app:layout_constraintStart_toStartOf="parent"
-        tools:layout_editor_absoluteY="127dp" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
         android:id="@+id/minWidthInput"
         android:layout_width="168dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="168dp"
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
         android:ems="10"
         android:hint="Min Width (mm)"
         android:inputType="numberDecimal"
         app:layout_constraintEnd_toEndOf="parent"
-        tools:layout_editor_absoluteY="127dp" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
         android:id="@+id/currentInput"
-        android:layout_width="171dp"
+        android:layout_width="168dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="32dp"
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
         android:ems="10"
@@ -49,12 +51,14 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
+        android:layout_marginTop="52dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:text="Choose a Gerber File"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent"
-        tools:layout_editor_absoluteY="259dp" />
+        app:layout_constraintTop_toBottomOf="@+id/voltageInput" />
 
     <TextView
         android:id="@+id/descriptionText"
@@ -62,10 +66,10 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="32dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
-        android:text="This is a Utilitity for \n\t\t\t\t\tPCB Testing"
+        android:text="A utilitity for PCB testing"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -73,18 +77,20 @@
 
     <TextView
         android:id="@+id/errorMessage"
-        android:layout_width="105dp"
-        android:layout_height="46dp"
+        android:layout_width="wrap_content"
+        android:layout_height="39dp"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
+        android:layout_marginBottom="8dp"
         android:gravity="center_horizontal"
-        android:text="Error Message \nPlaceholder"
+        android:text="Error Message\nPlaceholder"
         android:textColor="@android:color/holo_red_dark"
+        app:layout_constraintBottom_toTopOf="@+id/submitButton"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:layout_editor_absoluteY="568dp" />
+        app:layout_constraintHorizontal_bias="0.501"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <EditText
         android:id="@+id/voltageInput"
@@ -92,7 +98,7 @@
         android:layout_height="44dp"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="32dp"
         android:ems="10"
         android:hint="Voltage (Volts)"
         android:inputType="numberDecimal"

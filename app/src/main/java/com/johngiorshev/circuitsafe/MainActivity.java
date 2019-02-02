@@ -118,7 +118,6 @@ public class MainActivity extends AppCompatActivity {
                             } else {
                                 // Other succeeded but this one failed
                                 showError();
-
                             }
                         }
                         if (connectionStatus==0) {
@@ -217,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     holderFile = new File(getFilesDir() + "placeholderfile");
                     InputStream in = getContentResolver().openInputStream(resultData.getData());
-                    OutputStream out = new FileOutputStream(holderFile);
+                    OutputStream out = new FileOutputStream(holderFile, false);
                     byte[] buf = new byte[1024];
                     int len;
                     while ((len = in.read(buf)) > 0) {
@@ -229,6 +228,8 @@ public class MainActivity extends AppCompatActivity {
                             + fakePath.substring(fakePath.lastIndexOf("/") + 1));
                     errorView.setVisibility(View.GONE);
                     pickerButton.setEnabled(false);
+
+                    BoardDisplay.fileName = fakePath.substring(fakePath.lastIndexOf("/")+1);
                 } catch (Exception e) {
                     // nah
                 }

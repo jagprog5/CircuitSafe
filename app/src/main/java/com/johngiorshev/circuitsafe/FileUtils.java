@@ -9,9 +9,11 @@ import android.util.Log;
 import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
@@ -95,6 +97,7 @@ public class FileUtils {
 
     public static void sendJSONPost(JSONObject json, ConnectionCallBack connectioncb) {
         final String jsonstr = json.toString();
+        BoardDisplay.jsonInput = json;
         final ConnectionCallBack ccb = connectioncb;
         Thread thread = new Thread(new Runnable() {
             @Override
@@ -112,6 +115,16 @@ public class FileUtils {
                     os.flush();
                     os.close();
                     Log.i("JSONSENDMSG" , conn.getResponseMessage());
+                    BufferedReader br = new BufferedReader(
+                            new InputStreamReader(conn.getInputStream()));
+                    StringBuilder sb = new StringBuilder();
+                    String output;
+                    while ((output = br.readLine()) != null) {
+                        sb.append(output);
+                    }
+
+                    BoardDisplay.jsonOutput = sb.toString();
+
                     // 200 code is success
                     ccb.success(conn.getResponseCode() == 200);
                     conn.disconnect();

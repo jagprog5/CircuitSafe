@@ -11,6 +11,10 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
@@ -64,19 +68,40 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == REQUESTCODE && resultCode == Activity.RESULT_OK && resultData != null) {
             Intent intent = new Intent(getBaseContext(), BoardDisplay.class);
 
-            // Pass the file path to the next activity
-            String path = resultData.getData().getPath();
+            // This doesn't work.
+            // String path = resultData.getData().getPath();
+
+            // Write file to place dir where app has control. Only place app can access file object
+            File f = null;
+            try {
+                f = new File(getFilesDir() + "placeholderfile");
+                InputStream in = getContentResolver().openInputStream(resultData.getData());
+                OutputStream out = new FileOutputStream(f);
+                byte[] buf = new byte[1024];
+                int len;
+                while ((len = in.read(buf)) > 0) {
+                    out.write(buf, 0, len);
+                }
+                out.close();
+                in.close();
+            } catch (Exception e) {
+                // nah
+            }
+
+
+            String realPath = f.getAbsolutePath();
+            String fakePath = resultData.getData().getPath();
 
             // Check if extension is valid
             // Parsing:
-            // Get text up to and including last '.'
+            // Get text after and including last '.'
             // Remove period
             // Bring to lowercase
-            String extension = path.substring(path.lastIndexOf("."))
+            String extension = fakePath.substring(fakePath.lastIndexOf("."))
                     .substring(1)
                     .toLowerCase();
             if (Arrays.asList(VALIDEXTENSIONS).contains(extension)) {
-                intent.putExtra("FILEPATH", path);
+                intent.putExtra("FILEPATH", realPath);
                 startActivity(intent);
             } else {
                 TextView errorView = (TextView)findViewById(R.id.errorMessage);

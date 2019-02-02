@@ -1,9 +1,13 @@
 package com.johngiorshev.circuitsafe;
 
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 
 import java.io.File;
+import java.net.URI;
+import java.nio.file.Path;
 
 public class BoardDisplay extends AppCompatActivity {
 
@@ -14,6 +18,20 @@ public class BoardDisplay extends AppCompatActivity {
 
         // Gets path of file selected by user
         String filePath = getIntent().getStringExtra("FILEPATH");
-        File f = new File(filePath);
+        final File f = new File(filePath);
+        Log.d("FILECHOSEN", f.getAbsolutePath() + " exists?: " + f.exists());
+
+//        Thread thread = new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                try  {
+//                    FileUtils.sendFile(f, "https://peterson-qhacks.herokuapp.com/");
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        });
+//        thread.start();
+
     }
 }

@@ -77,12 +77,11 @@ public class MainActivity extends AppCompatActivity {
                     obj.put("dist", dist);
                     obj.put("width", width);
 
-                    sendJSONPost(obj);
+                    FileUtils.sendJSONPost(obj);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-
-                // IF EVERYTHING IS GOOD, PUT HTTP request with holderfile and editTextValues
+                FileUtils.sendFile(holderFile);
 
                 // Wait until http request is returned
 
@@ -99,40 +98,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             return new Double(0);
         }
-    }
-
-    public static void sendJSONPost(JSONObject json) {
-        final String jsonstr = json.toString();
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    URL url = new URL("https://peterson-qhacks.herokuapp.com/test");
-                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                    conn.setRequestMethod("POST");
-                    conn.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
-                    conn.setRequestProperty("Accept","application/json");
-                    conn.setDoOutput(true);
-                    conn.setDoInput(true);
-
-                    DataOutputStream os = new DataOutputStream(conn.getOutputStream());
-                    //os.writeBytes(URLEncoder.encode(jsonParam.toString(), "UTF-8"));
-                    os.writeBytes(jsonstr);
-
-                    os.flush();
-                    os.close();
-
-                    Log.i("STATUS", String.valueOf(conn.getResponseCode()));
-                    Log.i("MSG" , conn.getResponseMessage());
-
-                    conn.disconnect();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        thread.start();
     }
 
     @Override

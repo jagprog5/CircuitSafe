@@ -6,6 +6,8 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
 
+import org.json.JSONObject;
+
 import java.io.BufferedInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -21,35 +23,54 @@ public class FileUtils {
     private static String twoHyphens = "--";
     private static String boundary =  "*****";
 
-    public static void sendFile(File f, String url) throws Exception {
+    public static void sendFile(File f) {
         // THIS METHOD IS BASED OFF:
         // https://stackoverflow.com/a/11826317
 
-        HttpURLConnection httpUrlConnection = (HttpURLConnection) new URL(url).openConnection();
-        httpUrlConnection.setUseCaches(false);
-        httpUrlConnection.setDoOutput(true);
+        final File file = f;
 
-        httpUrlConnection.setRequestMethod("POST");
-        httpUrlConnection.setRequestProperty("Connection", "Keep-Alive");
-        httpUrlConnection.setRequestProperty("Cache-Control", "no-cache");
-        httpUrlConnection.setRequestProperty(
-                "Content-Type", "multipart/form-data;boundary=" + boundary);
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
 
-        DataOutputStream request = new DataOutputStream(
-                httpUrlConnection.getOutputStream());
+                    HttpURLConnection conn = (HttpURLConnection)
+                            new URL("https://peterson-qhacks.herokuapp.com/test")//upload")
+                                    .openConnection();
+                    conn.setUseCaches(false);
+                    conn.setDoOutput(true);
 
-        request.writeBytes(twoHyphens + boundary + crlf);
-        request.writeBytes("Content-Disposition: form-data; name=\"gerberfile\";filename=\"" +
-                f.getName() + "\"" + crlf);
-        request.writeBytes(crlf);
+                    conn.setRequestMethod("POST");
+                    conn.setRequestProperty("Connection", "Keep-Alive");
+                    conn.setRequestProperty("Cache-Control", "no-cache");
+                    conn.setRequestProperty(
+                            "Content-Type", "multipart/form-data;boundary=" + boundary);
 
-        request.write(getBytesFromFile(f));
+                    DataOutputStream request = new DataOutputStream(
+                            conn.getOutputStream());
 
-        request.writeBytes(crlf);
-        request.writeBytes(twoHyphens + boundary +
-                twoHyphens + crlf);
-        request.flush();
-        request.close();
+                    request.writeBytes(twoHyphens + boundary + crlf);
+                    request.writeBytes("Content-Disposition: form-data; name=\"gerberfile\";filename=\"" +
+                            file.getName() + "\"" + crlf);
+                    request.writeBytes(crlf);
+
+                    request.write(getBytesFromFile(file));
+
+                    request.writeBytes(crlf);
+                    request.writeBytes(twoHyphens + boundary +
+                            twoHyphens + crlf);
+                    request.flush();
+                    request.close();
+
+                    Log.i("STATUS", String.valueOf(conn.getResponseCode()));
+                    Log.i("MSG" , conn.getResponseMessage());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        thread.start();
     }
 
     private static byte[] getBytesFromFile(File f) {
@@ -62,5 +83,39 @@ public class FileUtils {
             e.printStackTrace();
         }
         return bytes;
+    }
+
+    public static void sendJSONPost(JSONObject json) {
+        final String jsonstr = json.toString();
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    URL url = new URL("https://peterson-qhacks.herokuapp.com/compute");
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setRequestMethod("POST");
+                    conn.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
+                    conn.setRequestProperty("Accept","application/json");
+                    conn.setDoOutput(true);
+                    conn.setDoInput(true);
+
+                    DataOutputStream os = new DataOutputStream(conn.getOutputStream());
+                    //os.writeBytes(URLEncoder.encode(jsonParam.toString(), "UTF-8"));
+                    os.writeBytes(jsonstr);
+
+                    os.flush();
+                    os.close();
+
+                    Log.i("STATUS", String.valueOf(conn.getResponseCode()));
+                    Log.i("MSG" , conn.getResponseMessage());
+
+                    conn.disconnect();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        thread.start();
     }
 }

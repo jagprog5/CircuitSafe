@@ -1,26 +1,28 @@
 package com.johngiorshev.circuitsafe;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
+import android.content.pm.ActivityInfo;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
 import org.json.JSONObject;
 
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
@@ -29,12 +31,39 @@ public class MainActivity extends AppCompatActivity {
     boolean ignoreNextResume = false;
     Button  pickerButton = null;
     TextView errorView;
+    EditText voltageInput = null;
+    EditText minWidthInput = null;
     File holderFile = null;
+
+    public Activity getInstance() {
+        return this;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Lock screen orientation
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+
+        voltageInput = (EditText)findViewById(R.id.voltageInput);
+        minWidthInput = (EditText)findViewById(R.id.minWidthInput);
+//        voltageInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+//            @Override
+//            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+//                getInstance().runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        Log.d("FOCUSS", "run: ");
+//                        minWidthInput.requestFocus();
+//                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+//                        imm.showSoftInput(minWidthInput, InputMethodManager.SHOW_IMPLICIT);
+//                    }
+//                });
+//                return false;
+//            }
+//        });
 
         pickerButton = (Button)findViewById(R.id.filePickerButton);
         pickerButton.setOnClickListener(new View.OnClickListener() {
@@ -60,10 +89,10 @@ public class MainActivity extends AppCompatActivity {
                         " exists? " + holderFile.exists());
 
                 // CHECK IF OTHER VALUES AREN'T BLANK
-                Double voltage = getValue((EditText)findViewById(R.id.voltageInput));
+                Double voltage = getValue(voltageInput);
                 Double current = getValue((EditText)findViewById(R.id.currentInput));
                 Double dist = getValue((EditText)findViewById(R.id.minDistInput));
-                Double width = getValue((EditText)findViewById(R.id.minWidthInput));
+                Double width = getValue(minWidthInput);
                 if (voltage <= 0 || current <= 0 || dist <= 0 || width <= 0) {
                     errorView.setText("Inputs must be positive non-zero values!");
                     errorView.setVisibility(View.VISIBLE);
@@ -72,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
 
                 JSONObject obj = new JSONObject();
                 try {
-                    obj.put("voltage", voltage);
+                    obj.put("voltageInput", voltage);
                     obj.put("current", current);
                     obj.put("dist", dist);
                     obj.put("width", width);

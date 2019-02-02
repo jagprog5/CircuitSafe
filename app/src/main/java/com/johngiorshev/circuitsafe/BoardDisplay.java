@@ -1,5 +1,6 @@
 package com.johngiorshev.circuitsafe;
 
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.Image;
@@ -30,6 +31,9 @@ public class BoardDisplay extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_board_display);
 
+        // Lock screen orientation
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+
         final ImageView imageView = (ImageView)findViewById(R.id.imageView);
 
         Thread thread = new Thread(new Runnable() {
@@ -40,7 +44,30 @@ public class BoardDisplay extends AppCompatActivity {
                     final Bitmap bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream());
                     runOnUiThread(new Runnable() {
                         public void run() {
-                            imageView.setImageBitmap(bmp);;
+                            imageView.setImageBitmap(bmp);
+                            TextView longText = (TextView)findViewById(R.id.longTextDisplay);
+                            longText.setText("");
+                            longText.append("----Inputs----\n");
+                            longText.append("File: \"" + fileName + "\"\n");
+
+                            try {
+                                longText.append("Minimum Distance (mm): " + jsonInput.getString("min_dist") + "\n");
+                                longText.append("Minimum Width (mm): " + jsonInput.getString("min_width") + "\n");
+                                longText.append("Voltage (Volts): " + jsonInput.getString("voltage") + "\n");
+                                longText.append("Current (Amps): " + jsonInput.getString("current") + "\n");
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+
+                            longText.append("----Outputs----\n");
+                            String pairs[] = jsonOutput.substring(1, jsonOutput.length()-1).split(",");
+                            for (String s : pairs) {
+                                String[] pair = s.split(":");
+                                String property = pair[0].substring(1, pair[0].length() - 1);
+                                longText.append(property + ": " + pair[1] + "\n");
+                            }
+
+                            Log.d("TEXT", longText.getText().toString());
                         }
                     });
                 } catch (Exception e) {
@@ -49,32 +76,5 @@ public class BoardDisplay extends AppCompatActivity {
             }
         });
         thread.start();
-        TextView longText = (TextView)findViewById(R.id.longTextDisplay);
-        longText.setText("");
-        longText.append("Inputs:\n");
-        longText.append("File: \"" + fileName + "\"\n");
-
-        try {
-            longText.append("Minimum Distance (mm): " + jsonInput.getString("min_dist") + "\n");
-            longText.append("Minimum Width (mm): " + jsonInput.getString("min_width") + "\n");
-            longText.append("Voltage (Volts): " + jsonInput.getString("voltage") + "\n");
-            longText.append("Current (Amps): " + jsonInput.getString("current") + "\n");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        longText.append("Outputs:\n");
-        String pairs[] = jsonOutput.substring(1, jsonOutput.length()-1).split(",");
-        for (String s : pairs) {
-            String[] pair = s.split(":");
-            String property = pair[0].substring(1, pair[0].length() - 1);
-//            for (char c : property.toCharArray()) {
-//
-//            }
-            longText.append(property + ": " + pair[1] + "\n");
-        }
-
-        Log.d("TEXT", longText.getText().toString());
-
     }
 }

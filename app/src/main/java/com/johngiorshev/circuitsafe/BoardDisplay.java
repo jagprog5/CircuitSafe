@@ -78,7 +78,7 @@ public class BoardDisplay extends AppCompatActivity {
                                 String property = pair[0].substring(1, pair[0].length() - 1);
 
                                 String unit = UNITS.get(property);
-                                Log.d("VALUE", "" + property + " " + unit);
+                                Log.d("OUTPUTS", s);
 
                                 // Capitalize first letter
                                 property = Character.toUpperCase(property.charAt(0))
@@ -92,28 +92,30 @@ public class BoardDisplay extends AppCompatActivity {
                                 }
                                 String value = pair[1];
                                 Double dVal = Double.parseDouble(value);
-                                if (dVal > 1000000000) {
+                                if (Math.abs(dVal) > 1000000000) {
                                     dVal /= 1000000000;
                                     unit = "giga" + unit;
-                                } else if (dVal > 1000000) {
+                                } else if (Math.abs(dVal) > 1000000) {
                                     dVal /= 1000000;
                                     unit = "mega" + unit;
-                                } else if (dVal > 1000) {
+                                } else if (Math.abs(dVal) > 1000) {
                                     dVal /= 1000;
                                     unit = "kilo" + unit;
-                                } else if (dVal < 0.000000001) {
+                                } else if (Math.abs(dVal) < 0.000000001) {
                                     dVal *= 1000000000;
                                     unit = "nano" + unit;
-                                } else if (dVal < 0.000001) {
+                                } else if (Math.abs(dVal) < 0.000001) {
                                     dVal *= 1000000;
                                     unit = "micro" + unit;
-                                } else if (dVal < 0.001) {
+                                } else if (Math.abs(dVal) < 0.001) {
                                     dVal *= 1000;
                                     unit = "milli" + unit;
                                 }
                                 value = "" + dVal;
-                                //Remove needless decimal places. Leaves 3 in place after decimal place.
-                                value = value.substring(0, Math.min(s.length(), 5));
+                                //Remove needless decimal places. Leaves ~3 places after decimal place.
+                                if (value.length() > 6) {
+                                    value = value.substring(0, Math.min(s.length(), 6));
+                                }
                                 if (value.length() > 10) {
                                     value = value.substring(0, 5);
                                 }

@@ -15,7 +15,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="24dp"
         android:layout_marginRight="24dp"
-        android:text="Tolerances / Specs:"
+        android:text="Specifications:"
         android:textSize="24sp"
         android:textStyle="bold"
         app:fontFamily="@font/advent_pro_medium"

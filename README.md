@@ -6,4 +6,4 @@ Circuit safe is a PCB design validator. This repo is an android app front-end fo
 
 [quick demo video](https://youtu.be/7CH2nNuY6H0)
 
-[ackend repo](https://github.com/rsgc-peterson-e/qhacks-2019-backend)
+[backend repo](https://github.com/rsgc-peterson-e/qhacks-2019-backend)

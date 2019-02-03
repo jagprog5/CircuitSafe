@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -29,6 +30,8 @@ public class BoardDisplay extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getSupportActionBar().hide(); //hide the title bar
         setContentView(R.layout.activity_board_display);
 
         // Lock screen orientation
@@ -45,29 +48,37 @@ public class BoardDisplay extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         public void run() {
                             imageView.setImageBitmap(bmp);
-                            TextView longText = (TextView)findViewById(R.id.longTextDisplay);
-                            longText.setText("");
-                            longText.append("----Inputs----\n");
-                            longText.append("File: \"" + fileName + "\"\n");
+                            TextView longTextInput = (TextView)findViewById(R.id.longTextInput);
+                            longTextInput.setText("");
+                            longTextInput.append("File: \"" + fileName + "\"\n");
 
                             try {
-                                longText.append("Minimum Distance (mm): " + jsonInput.getString("min_dist") + "\n");
-                                longText.append("Minimum Width (mm): " + jsonInput.getString("min_width") + "\n");
-                                longText.append("Voltage (Volts): " + jsonInput.getString("voltage") + "\n");
-                                longText.append("Current (Amps): " + jsonInput.getString("current") + "\n");
+                                longTextInput.append("Minimum Distance (mm): " + jsonInput.getString("min_dist") + "\n");
+                                longTextInput.append("Minimum Width (mm): " + jsonInput.getString("min_width") + "\n");
+                                longTextInput.append("Voltage (Volts): " + jsonInput.getString("voltage") + "\n");
+                                longTextInput.append("Current (Amps): " + jsonInput.getString("current") + "\n");
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
 
-                            longText.append("----Outputs----\n");
+                            TextView longTextOutput = (TextView)findViewById(R.id.longTextOutput);
+                            longTextOutput.setText("");
                             String pairs[] = jsonOutput.substring(1, jsonOutput.length()-1).split(",");
                             for (String s : pairs) {
                                 String[] pair = s.split(":");
                                 String property = pair[0].substring(1, pair[0].length() - 1);
-                                longText.append(property + ": " + pair[1] + "\n");
+                                // Capitalize first letter
+                                property = Character.toUpperCase(property.charAt(0))
+                                        + property.substring(1);
+                                // StringBuilder should be used here but meh
+                                for (int i = property.length() - 1; i > 0; i--) {
+                                    if (Character.isUpperCase(property.charAt(i))) {
+                                        property = property.substring(0, i) + " " +
+                                                property.substring(i, property.length());
+                                    }
+                                }
+                                longTextOutput.append(property + ": " + pair[1] + "\n");
                             }
-
-                            Log.d("TEXT", longText.getText().toString());
                         }
                     });
                 } catch (Exception e) {

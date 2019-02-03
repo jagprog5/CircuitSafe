@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -47,8 +48,14 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        // Background Image source modified from:
+        // https://img-aws.ehowcdn.com/877x500p/photos.demandstudios.com/getty/article/97/247/89676655.jpg
+        // In Photoshop CC, only a simple gaussian blur and
+        // histogram adjustment (to lighten the image) was used
 
+        super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getSupportActionBar().hide(); //hide the title bar
         setContentView(R.layout.activity_main);
 
         // Lock screen orientation

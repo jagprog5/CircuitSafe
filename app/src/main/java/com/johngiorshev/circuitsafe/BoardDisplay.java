@@ -18,6 +18,7 @@ import java.io.File;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
+import java.util.HashMap;
 
 public class BoardDisplay extends AppCompatActivity {
 
@@ -26,6 +27,14 @@ public class BoardDisplay extends AppCompatActivity {
     static String jsonOutput = null;
     static JSONObject jsonInput = null;
     static String fileName = null;
+
+    public static final HashMap<String, String> UNITS = new HashMap<String, String>() {{
+        put("currentRating", "amps");
+        put("electricField", "newtons/coloumb");
+        put("signalSpeed", "meters/second");
+        put("propDelay", "seconds");
+        put("tempDelta", "°C");
+    }};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +76,10 @@ public class BoardDisplay extends AppCompatActivity {
                             for (String s : pairs) {
                                 String[] pair = s.split(":");
                                 String property = pair[0].substring(1, pair[0].length() - 1);
+
+                                String unit = UNITS.get(property);
+                                Log.d("VALUE", "" + property + " " + unit);
+
                                 // Capitalize first letter
                                 property = Character.toUpperCase(property.charAt(0))
                                         + property.substring(1);
@@ -77,7 +90,35 @@ public class BoardDisplay extends AppCompatActivity {
                                                 property.substring(i, property.length());
                                     }
                                 }
-                                longTextOutput.append(property + ": " + pair[1] + "\n");
+                                String value = pair[1];
+                                Double dVal = Double.parseDouble(value);
+                                if (dVal > 1000000000) {
+                                    dVal /= 1000000000;
+                                    unit = "giga" + unit;
+                                } else if (dVal > 1000000) {
+                                    dVal /= 1000000;
+                                    unit = "mega" + unit;
+                                } else if (dVal > 1000) {
+                                    dVal /= 1000;
+                                    unit = "kilo" + unit;
+                                } else if (dVal < 0.000000001) {
+                                    dVal *= 1000000000;
+                                    unit = "nano" + unit;
+                                } else if (dVal < 0.000001) {
+                                    dVal *= 1000000;
+                                    unit = "micro" + unit;
+                                } else if (dVal < 0.001) {
+                                    dVal *= 1000;
+                                    unit = "milli" + unit;
+                                }
+                                value = "" + dVal;
+                                //Remove needless decimal places. Leaves 3 in place after decimal place.
+                                value = value.substring(0, Math.min(s.length(), 5));
+                                if (value.length() > 10) {
+                                    value = value.substring(0, 5);
+                                }
+                                longTextOutput.append(property + ": " + value + " " +
+                                        (unit==null ? "" : unit) + "\n");
                             }
                         }
                     });
